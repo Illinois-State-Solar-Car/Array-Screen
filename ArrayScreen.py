@@ -1,5 +1,5 @@
 '''
-V0.1
+V0.2
 Code redo for the BMS Screen
 Updated 3/27/24
 Mason Myre
@@ -78,19 +78,6 @@ color_palette[0] =0x000000  # Black
 bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=0)
 splash.append(bg_sprite)
 
-#draw the text label
-text = "SOLAR CAR ISU\nARRAY SCREEN\n"
-text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
-text_width = text_area.bounding_box[2] * FONTSCALE
-text_group = displayio.Group(
-    scale=FONTSCALE,
-    x=display.width // 2 - text_width // 2,
-    y=display.height // 2,
-)
-text_group.append(text_area)  # Subgroup for text scaling
-splash.append(text_group)
-time.sleep(2.5)
-splash.pop(-1) #we use the pop command because we do not plan on reusing this text group
 
 
 #function creation area
@@ -145,33 +132,61 @@ def draw_bms_error(fail_str):
         while True: #what does this do? nothing, we simply do nothing until the car is manually rebooted
             pass #pretty neat, huh?
 
+'''
+#draw the text label
+text = "SOLAR CAR ISU\nARRAY SCREEN\n"
+text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+text_width = text_area.bounding_box[2] * FONTSCALE
+text_group = displayio.Group(
+    scale=FONTSCALE,
+    x=display.width // 2 - text_width // 2,
+    y=display.height // 2,
+)
+text_group.append(text_area)  # Subgroup for text scaling
+splash.append(text_group)
+time.sleep(2.5)
+splash.pop(-1) #we use the pop command because we do not plan on reusing this text group
+'''
+
+startup_text = "ISU SOLAR CAR\nARRAY SCREEN"
+text_area = label.Label(terminalio.FONT, text=startup_text, color=0xFFFFFF)
+text_width = text_area.bounding_box[2] * FONTSCALE
+center = display.width // 2 - text_width // 2
+text_group = displayio.Group(scale=1, x=center, y=10)
+text_group.append(text_area)  # Subgroup for text scaling
+splash.append(text_group)
+
+
+#make car go vroom
+text_group = displayio.Group(scale=1,x=0,y=25)
+text = "\n.-'--`-._\n'-O---O--'  "
+text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+text_group.append(text_area)  # Subgroup for text scaling
+splash.append(text_group)
+for i in range (70):
+    write_to_screen(1, i, 25, text, -1)
+    time.sleep(.1)
+    
+time.sleep(.5)
+splash.pop(-2)
+splash.pop(-1)
+
 #print stuff as we initialize the text to groups saying "hey we're gonna keep using this stuff in the future"
-current = 15
-text = "A: {:04.1f}".format(current)
-init_screen_writing(3, 0, 12, text)
+cur_text = "A:  {:04.1f}".format(arrayI)
+init_screen_writing(2, 3, 10, cur_text) 
 
-text = "A1: {:04.1f}".format(current/6)
-init_screen_writing(1, 0, 36, text)
+array_volt_text = "V: {:5.1f}".format(arrayV)
+init_screen_writing(2, 3, 30, array_volt_text)
 
-text = "A2: {:04.1f}".format(current/2)
-init_screen_writing(1, 0, 48, text)
+batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
+init_screen_writing(1, 0, 50, batt_volt_text)
 
-text = "A3: {:04.1f}".format(current/3)
-init_screen_writing(1, 0, 60, text)
+temp_text = "MPPT Temp:     {:04.1f}".format(mpptTemp)
+init_screen_writing(1, 0, 60, temp_text)
 
 
 #time.sleep(776)
 
-
-
-
-'''
-text = "V: {:04.1f}".format(voltage)
-init_screen_writing(2, 3, 35, text)
-
-text = "HT: {:04.1f} LT: {:4.1f}".format(highTemp,lowTemp)
-init_screen_writing(1, 0, 60, text)
-'''
 
 runtime = time.time()
 
@@ -226,13 +241,13 @@ while True:
             cur_text = "A:  {:04.1f}".format(arrayI)
             write_to_screen(2, 3, 10, cur_text, -4)
             
-            array_volt_text = "V: {:04.1f}".format(arrayV)
+            array_volt_text = "V: {:5.1f}".format(arrayV)
             write_to_screen(2, 3, 30, array_volt_text, -3)
             
-            batt_volt_text = "Battery Volt: {:04.1f}".format(batteryV)
+            batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
             write_to_screen(1, 0, 50, batt_volt_text, -2)
             
-            temp_text = "MPPT Temp:    {:04.1f}".format(mpptTemp)
+            temp_text = "MPPT Temp:     {:04.1f}".format(mpptTemp)
             write_to_screen(1, 0, 60, temp_text, -1)
             
             next_message = listener.receive()

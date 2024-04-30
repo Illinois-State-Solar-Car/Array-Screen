@@ -79,9 +79,6 @@ bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=
 splash.append(bg_sprite)
 
 
-#writes to the screen every time after the first
-def write_to_screen(a, b, c, t, sp):
-
 #I could have made init_screen_writing() and write_to_screen the same method but this feels more readable
     
 def _can_is_full():
@@ -145,6 +142,8 @@ text_group.append(text_area)  # Subgroup for text scaling
 splash.append(text_group)
 time.sleep(2)
 
+splash.pop(-1)
+
 '''
 #make car go vroom
 text_group = displayio.Group(scale=1,x=0,y=25)
@@ -161,31 +160,33 @@ splash.pop(-2)
 splash.pop(-1)
 '''
 #print stuff as we initialize the text to groups saying "hey we're gonna keep using this stuff in the future"
-cur_text = "A:  {:04.1f}".format(arrayI)
+cur_text = "A:   {:04.1f}".format(arrayI)
 text_group = displayio.Group(scale = 2, x = 3, y = 10)
-text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_area = label.Label(terminalio.FONT, text=cur_text, color=0xFFFFFF) #black
 text_group.append(text_area)
 splash.append(text_group) #we use append here because we are going to be reusing the text group
 
 
 array_volt_text = "V: {:5.1f}".format(arrayV)
 text_group = displayio.Group(scale = 2, x = 3, y = 30)
-text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_area = label.Label(terminalio.FONT, text=array_volt_text, color=0xFFFFFF) #black
 text_group.append(text_area)
 splash.append(text_group) #we use append here because we are going to be reusing the text group
 
 
 batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
-text_group = displayio.Group(scale = 1, x = 0, y = 50)
-text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_group = displayio.Group(scale = 1, x = 0, y = 45)
+text_area = label.Label(terminalio.FONT, text=batt_volt_text, color=0xFFFFFF) #black
 text_group.append(text_area)
 splash.append(text_group) #we use append here because we are going to be reusing the text group
 
-temp_text = "MPPT Temp: {:04.1f}".format(mpptTemp)
-text_group = displayio.Group(scale = 1, x = 0, y = 60)
-text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+temp_text = "MPPT Temp:     {:04.1f}".format(mpptTemp)
+text_group = displayio.Group(scale = 1, x = 0, y = 55)
+text_area = label.Label(terminalio.FONT, text=temp_text, color=0xFFFFFF) #black
 text_group.append(text_area)
 splash.append(text_group) #we use append here because we are going to be reusing the text group
+
+time.sleep(1000)
 
 
 runtime = time.time()
@@ -208,38 +209,26 @@ while True:
         text_group = displayio.Group(scale = 2, x = 3, y = 10)
         text_area = label.Label(terminalio.FONT, text = cur_text, color=0xFFFFFF) #black
         text_group.append(text_area)
-        splash[sp] = text_group
-        next_message = listener.receive() #grab the next message
-        message_num = 0 #set a counter for how many messages are in the queue
+        splash[-4] = text_group
 
         array_volt_text = "V: {:5.1f}".format(arrayV)
+        text_group = displayio.Group(scale = 2, x = 3, y = 10)
+        text_area = label.Label(terminalio.FONT, text = cur_text, color=0xFFFFFF) #black
+        text_group.append(text_area)
+        splash[-3] = text_group
             
-            batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
-            write_to_screen(1, 0, 50, batt_volt_text, -2)
+        batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
+        text_group = displayio.Group(scale = 1, x = 0, y = 45)
+        text_area = label.Label(terminalio.FONT, text = batt_volt_text, color = 0xFFFFFF)
+        text_group.append(text_area)
+        splash[-2] = text_group
             
-            temp_text = "MPPT Temp: {:04.1f}".format(mpptTemp)
-            write_to_screen(1, 0, 60, temp_text, -1)
-        text_group = displayio.Group(scale = 2, x = 3, y = 30)
+        temp_text = "MPPT Temp:     {:04.1f}".format(mpptTemp)
+        text_group = displayio.Group(scale = 1, x = 0, y = 55)
         text_area = label.Label(terminalio.FONT, text = array_volt_text, color=0xFFFFFF) #black
         text_group.append(text_area)
         splash[sp] = text_group
-        next_message = listener.receive() #grab the next message
-        message_num = 0 #set a counter for how many messages are in the queue
 
-        text_group = displayio.Group(scale = 2, x = 3, y = 10)
-        text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
-        text_group.append(text_area)
-        splash[sp] = text_group
-        next_message = listener.receive() #grab the next message
-        message_num = 0 #set a counter for how many messages are in the queue
-
-        text_group = displayio.Group(scale = 2, x = 3, y = 10)
-        text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
-        text_group.append(text_area)
-        splash[sp] = text_group
-        next_message = listener.receive() #grab the next message
-
-        
         message_num = 0 #set a counter for how many messages are in the queue
         while not next_message is None: #aka while we have another message to read
             message_num += 1 #increase the queue counter
@@ -274,19 +263,8 @@ while True:
                 prevDCU_time = time.monotonic_ns()
 
 
-            #write all the text to the screen
-            cur_text = "A:  {:04.1f}".format(arrayI)
-            write_to_screen(2, 3, 10, cur_text, -4)
-            
-            array_volt_text = "V: {:5.1f}".format(arrayV)
-            write_to_screen(2, 3, 30, array_volt_text, -3)
-            
-            batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
-            write_to_screen(1, 0, 50, batt_volt_text, -2)
-            
-            temp_text = "MPPT Temp:     {:04.1f}".format(mpptTemp)
-            write_to_screen(1, 0, 60, temp_text, -1)
-            
             next_message = listener.receive()
             
             #hi
+
+

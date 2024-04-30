@@ -1,10 +1,10 @@
 '''
 V0.2
 Code redo for the BMS Screen
-Updated 3/27/24
+Updated 4.30.24
 Mason Myre
 
-Not finished yet, I need to talk with Shane about the CANbus inputs but it's a pretty decent start
+Not finished yet, needs testing
 
 '''
 #imports
@@ -79,21 +79,9 @@ bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=
 splash.append(bg_sprite)
 
 
-
-#function creation area
-#writes to the screen the first time
-def init_screen_writing(a, b, c, t):
-    text_group = displayio.Group(scale=a, x=b, y=c)
-    text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
-    text_group.append(text_area)
-    splash.append(text_group) #we use append here because we are going to be reusing the text group
-
 #writes to the screen every time after the first
 def write_to_screen(a, b, c, t, sp):
-    text_group = displayio.Group(scale=a, x=b, y=c)
-    text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
-    text_group.append(text_area)
-    splash[sp] = text_group
+
 #I could have made init_screen_writing() and write_to_screen the same method but this feels more readable
     
 def _can_is_full():
@@ -155,8 +143,9 @@ center = display.width // 2 - text_width // 2
 text_group = displayio.Group(scale=1, x=center, y=10)
 text_group.append(text_area)  # Subgroup for text scaling
 splash.append(text_group)
+time.sleep(2)
 
-
+'''
 #make car go vroom
 text_group = displayio.Group(scale=1,x=0,y=25)
 text = "\n.-'--`-._\n'-O---O--'  "
@@ -170,22 +159,33 @@ for i in range (70):
 time.sleep(.5)
 splash.pop(-2)
 splash.pop(-1)
-
+'''
 #print stuff as we initialize the text to groups saying "hey we're gonna keep using this stuff in the future"
 cur_text = "A:  {:04.1f}".format(arrayI)
-init_screen_writing(2, 3, 10, cur_text) 
+text_group = displayio.Group(scale = 2, x = 3, y = 10)
+text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_group.append(text_area)
+splash.append(text_group) #we use append here because we are going to be reusing the text group
+
 
 array_volt_text = "V: {:5.1f}".format(arrayV)
-init_screen_writing(2, 3, 30, array_volt_text)
+text_group = displayio.Group(scale = 2, x = 3, y = 30)
+text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_group.append(text_area)
+splash.append(text_group) #we use append here because we are going to be reusing the text group
+
 
 batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
-init_screen_writing(1, 0, 50, batt_volt_text)
+text_group = displayio.Group(scale = 1, x = 0, y = 50)
+text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_group.append(text_area)
+splash.append(text_group) #we use append here because we are going to be reusing the text group
 
-temp_text = "MPPT Temp:     {:04.1f}".format(mpptTemp)
-init_screen_writing(1, 0, 60, temp_text)
-
-
-#time.sleep(776)
+temp_text = "MPPT Temp: {:04.1f}".format(mpptTemp)
+text_group = displayio.Group(scale = 1, x = 0, y = 60)
+text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+text_group.append(text_area)
+splash.append(text_group) #we use append here because we are going to be reusing the text group
 
 
 runtime = time.time()
@@ -201,9 +201,46 @@ while True:
         if message_count > 300: #if unread messages is larger than 300
             _can_is_full() #clear the queue
 
+
+        #print out all of our stuff to the car
+        #print out amps
+        cur_text = "A:  {:04.1f}".format(arrayI)
+        text_group = displayio.Group(scale = 2, x = 3, y = 10)
+        text_area = label.Label(terminalio.FONT, text = cur_text, color=0xFFFFFF) #black
+        text_group.append(text_area)
+        splash[sp] = text_group
         next_message = listener.receive() #grab the next message
         message_num = 0 #set a counter for how many messages are in the queue
 
+        array_volt_text = "V: {:5.1f}".format(arrayV)
+            
+            batt_volt_text = "Battery Volt: {:5.1f}".format(batteryV)
+            write_to_screen(1, 0, 50, batt_volt_text, -2)
+            
+            temp_text = "MPPT Temp: {:04.1f}".format(mpptTemp)
+            write_to_screen(1, 0, 60, temp_text, -1)
+        text_group = displayio.Group(scale = 2, x = 3, y = 30)
+        text_area = label.Label(terminalio.FONT, text = array_volt_text, color=0xFFFFFF) #black
+        text_group.append(text_area)
+        splash[sp] = text_group
+        next_message = listener.receive() #grab the next message
+        message_num = 0 #set a counter for how many messages are in the queue
+
+        text_group = displayio.Group(scale = 2, x = 3, y = 10)
+        text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+        text_group.append(text_area)
+        splash[sp] = text_group
+        next_message = listener.receive() #grab the next message
+        message_num = 0 #set a counter for how many messages are in the queue
+
+        text_group = displayio.Group(scale = 2, x = 3, y = 10)
+        text_area = label.Label(terminalio.FONT, text=t, color=0xFFFFFF) #black
+        text_group.append(text_area)
+        splash[sp] = text_group
+        next_message = listener.receive() #grab the next message
+
+        
+        message_num = 0 #set a counter for how many messages are in the queue
         while not next_message is None: #aka while we have another message to read
             message_num += 1 #increase the queue counter
 

@@ -1,5 +1,9 @@
 '''
-Last Edit: 05/26/2023
+Last Edit: 07/02/2024
+
+Patch Notes:
+updated to show the full array wattage
+made the subarray wattage displays smaller to make space for the full array wattage
 
 
 The Following code is for the array driver display
@@ -108,21 +112,27 @@ subArr1W = subArr2W = subArr3W = totalWatt = sendtime = 0
 
 def initScreen():
     # Draw Speed/effecency Label
-    text_group = displayio.Group(scale=2, x=2, y=8)
+    text_group = displayio.Group(scale=1, x=2, y=8)
     text = "Arr1: {:04.1f}".format(subArr1W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
 
     # Draw Effecency Label
-    text_group = displayio.Group(scale=2, x=2, y=27)
+    text_group = displayio.Group(scale=1, x=2, y=20)
     text = "Arr2: {:04.1f}".format(subArr2W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
 
-    text_group = displayio.Group(scale=2, x=2, y=46)
+    text_group = displayio.Group(scale=1, x=2, y=32)
     text = "Arr3: {:04.1f}".format(subArr3W)
+    text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+    text_group.append(text_area)  # Subgroup for text scaling
+    splash.append(text_group)
+    
+    text_group = displayio.Group(scale=2, x=2, y=44)
+    text = "Total: {:04.1f}".format((subArr1W + subArr2W + subArr3W))
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
@@ -135,21 +145,27 @@ def initScreen():
     splash.append(text_group)
     
 def drawScreen():
-    text_group = displayio.Group(scale=2, x=2, y=8)
+    text_group = displayio.Group(scale=1, x=2, y=8)
     text = "Arr1: {:04.1f}".format(subArr1W)
+    text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+    text_group.append(text_area)  # Subgroup for text scaling
+    splash[-5] = text_group
+
+    # Draw Effecency Label
+    text_group = displayio.Group(scale=1, x=2, y=20)
+    text = "Arr2: {:04.1f}".format(subArr2W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash[-4] = text_group
 
-    # Draw Effecency Label
-    text_group = displayio.Group(scale=2, x=2, y=27)
-    text = "Arr2: {:04.1f}".format(subArr2W)
+    text_group = displayio.Group(scale=1, x=2, y=32)
+    text = "Arr3: {:04.1f}".format(subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
-    splash[-3] = text_group
-
-    text_group = displayio.Group(scale=2, x=2, y=46)
-    text = "Arr3: {:04.1f}".format(subArr3W)
+    splash[-3] = text_group    text_group = displayio.Group(scale=2, x=2, y=46)
+    
+    text_group = displayio.Group(scale=2, x=2, y=44)
+    text = "Total: {:04.1f}".format((subArr1W + subArr2W + subArr3W))
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash[-2] = text_group
@@ -243,23 +259,5 @@ while True:
 
 
     
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

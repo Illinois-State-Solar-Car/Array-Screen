@@ -1,9 +1,5 @@
 '''
-Last Edit: 07/02/2024
-
-Patch Notes:
-updated to show the full array wattage
-made the subarray wattage displays smaller to make space for the full array wattage
+Last Edit: 05/26/2023
 
 
 The Following code is for the array driver display
@@ -51,7 +47,7 @@ displayio.release_displays()
 spi = busio.SPI(board.GP2, board.GP3, board.GP4)
 
 #Create UART bus
-#uart = busio.UART(board.GP0,board.GP1,baudrate=9600)
+uart = busio.UART(board.GP0,board.GP1,baudrate=9600)
 
 # Set up the MCP 2515 on the SPI Bus
 can_cs = digitalio.DigitalInOut(board.GP9)
@@ -76,7 +72,7 @@ display.brightness = 1.0
 startTime = time.time()
 # Make the display context
 splash = displayio.Group()
-display.show(splash)
+display.root_group = splash
 
 color_bitmap = displayio.Bitmap(display.width, display.height, 1)
 color_palette = displayio.Palette(1)
@@ -113,31 +109,27 @@ subArr1W = subArr2W = subArr3W = totalWatt = sendtime = 0
 def initScreen():
     # Draw Speed/effecency Label
     text_group = displayio.Group(scale=1, x=2, y=8)
-    text = "Arr1: {:04.1f}".format(subArr1W)
-    text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
-    text_group.append(text_area)  # Subgroup for text scaling
-    splash.append(text_group)
-
-    # Draw Effecency Label
-    text_group = displayio.Group(scale=1, x=2, y=20)
-    text = "Arr2: {:04.1f}".format(subArr2W)
-    text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
-    text_group.append(text_area)  # Subgroup for text scaling
-    splash.append(text_group)
-
-    text_group = displayio.Group(scale=1, x=2, y=32)
-    text = "Arr3: {:04.1f}".format(subArr3W)
+    text = " 1       2       3"
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
     
-    text_group = displayio.Group(scale=2, x=2, y=44)
-    text = "Total: {:04.1f}".format((subArr1W + subArr2W + subArr3W))
+    
+    text_group = displayio.Group(scale=1, x=2, y=20)
+    text = "{:04.1f}    {:04.1f}    {:04.1f}".format(subArr1W, subArr2W, subArr3W)
+    text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
+    text_group.append(text_area)  # Subgroup for text scaling
+    splash.append(text_group)
+    
+    # Draw Effecency Label
+
+    text_group = displayio.Group(scale=2, x=2, y=40)
+    text = "  T: {:04.1f}".format(subArr1W + subArr2W + subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
 
-    # Draw temp labels for MPPTs
+    # Draw voltage/current Label
     text_group = displayio.Group(scale=1, x=10, y=60)
     text = "T1: {:04.1f}  T2: {:04.1f}".format(mppttemp1,mppttemp2)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
@@ -145,27 +137,23 @@ def initScreen():
     splash.append(text_group)
     
 def drawScreen():
-    text_group = displayio.Group(scale=1, x=2, y=8)
+    '''
+    text_group = displayio.Group(scale=2, x=2, y=8)
     text = "Arr1: {:04.1f}".format(subArr1W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
-    splash[-5] = text_group
+    splash[-4] = text_group
+    '''
 
     # Draw Effecency Label
     text_group = displayio.Group(scale=1, x=2, y=20)
-    text = "Arr2: {:04.1f}".format(subArr2W)
+    text = "{:04.1f}    {:04.1f}    {:04.1f}".format(subArr1W, subArr2W, subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
-    splash[-4] = text_group
+    splash[-3] = text_group
 
-    text_group = displayio.Group(scale=1, x=2, y=32)
-    text = "Arr3: {:04.1f}".format(subArr3W)
-    text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
-    text_group.append(text_area)  # Subgroup for text scaling
-    splash[-3] = text_group    text_group = displayio.Group(scale=2, x=2, y=46)
-    
-    text_group = displayio.Group(scale=2, x=2, y=44)
-    text = "Total: {:04.1f}".format((subArr1W + subArr2W + subArr3W))
+    text_group = displayio.Group(scale=2, x=2, y=40)
+    text = "T: {:04.1f}".format(subArr1W + subArr2W + subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash[-2] = text_group
@@ -192,13 +180,13 @@ runTime = time.time()
 while True:
         
     with mcp.listen(timeout=0) as listener:
-        '''
+
         if(time.time()-sendtime>1):
             uart.write(struct.pack('<ffffff',subArr1W,subArr2W,subArr3W,totalWatt,mppttemp1,mppttemp2))
             sendtime=time.time()
 
         totalWatt = subArr1W+subArr2W+subArr3W
-        '''
+
         _shaune_theCAN_isfull()
         
         drawScreen()
@@ -214,42 +202,42 @@ while True:
 
         
         while not next_message is None:
-        
+            drawScreen()
             message_num += 1
 
             # Check the id to properly unpack it
-            if next_message.id == 0x600:
+            if next_message.id == 0x602:
 
             #unpack and print the message
                 holder = struct.unpack('<hhhh',next_message.data)
-                subArr1V = holder[0]
-                subArr1I = holder[1]
+                subArr1V = holder[0]/100
+                subArr1I = holder[1]/1000
                 subArr1W = subArr1V*subArr1I
                 
                 #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
 
 
 
-            if next_message.id == 0x601:
+            if next_message.id == 0x603:
 
             #unpack and print the message
                 holder = struct.unpack('<hhhh',next_message.data)
-                subArr2V = holder[0]
-                subArr2I = holder[1]
+                subArr2V = holder[0]/100
+                subArr2I = holder[1]/1000
                 subArr2W = subArr2V*subArr2I
-                mppttemp1 = holder[3]
+                mppttemp1 = ((holder[3]/100)*9/5)+32
                 
                 #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
 
 
-            if next_message.id == 0x602:
+            if next_message.id == 0x604:
 
             #unpack and print the message
                 holder = struct.unpack('<hhhh',next_message.data)
-                subArr3V = holder[0]
-                subArr3I = holder[1]
+                subArr3V = holder[0]/100
+                subArr3I = holder[1]/1000
                 subArr3W = subArr3V*subArr3I
-                mppttemp2 = holder[3]
+                mppttemp2 = ((holder[3]/100)*9/5)+32
                 
                 #print("Message From: {}: [V = {}; A = {}]".format(hex(next_message.id),voltage,current))
 
@@ -259,5 +247,5 @@ while True:
 
 
     
-
+     
 

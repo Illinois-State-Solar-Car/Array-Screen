@@ -1,5 +1,9 @@
 '''
-Last Edit: 05/26/2023
+Last Edit: 07/03/2024
+
+Edits:
+Made the total array wattage look a little nicer
+Added comments
 
 
 The Following code is for the array driver display
@@ -82,7 +86,7 @@ bg_sprite = displayio.TileGrid(color_bitmap, pixel_shader=color_palette, x=0, y=
 splash.append(bg_sprite)
 
 # Draw a label
-text = "SOLAR CAR ISU ARRAY"
+text = "SOLAR CAR ISU ARRAY" #startup text
 text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
 text_width = text_area.bounding_box[2] * FONTSCALE
 text_group = displayio.Group(
@@ -91,74 +95,74 @@ text_group = displayio.Group(
     y=display.height // 2,
 )
 text_group.append(text_area)  # Subgroup for text scaling
-splash.append(text_group)
+splash.append(text_group) #this adds the text group
 time.sleep(2.5)
-splash.pop(-1)
+splash.pop(-1) #since this was just the startup stuff we never use it again and pop it out of the splash
 
 
 
-
+#variable initialization
 subArr1V = subArr1I = subArr2V = subArr2I = subArr3V = subArr3I = mppttemp1 = mppttemp2 = -1
 
 subArr1W = subArr2W = subArr3W = totalWatt = sendtime = 0
 
 
-
-
-
+# two different functions for initialization of the screen and updating 
 def initScreen():
-    # Draw Speed/effecency Label
+    # Draw labels for each of the arrays
     text_group = displayio.Group(scale=1, x=2, y=8)
     text = " 1       2       3"
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
     
-    
+    #write in the data coming from the subarrays
     text_group = displayio.Group(scale=1, x=2, y=20)
     text = "{:04.1f}    {:04.1f}    {:04.1f}".format(subArr1W, subArr2W, subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
     
-    # Draw Effecency Label
-
+    #write in the total wattage we are getting from the array
     text_group = displayio.Group(scale=2, x=2, y=40)
     text = "  T: {:04.1f}".format(subArr1W + subArr2W + subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
 
-    # Draw voltage/current Label
+    #display the temperatures we are getting from the power trackers
     text_group = displayio.Group(scale=1, x=10, y=60)
     text = "T1: {:04.1f}  T2: {:04.1f}".format(mppttemp1,mppttemp2)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash.append(text_group)
-    
+
+
 def drawScreen():
+    #don't need this because the array labels are not changing
     '''
-    text_group = displayio.Group(scale=2, x=2, y=8)
-    text = "Arr1: {:04.1f}".format(subArr1W)
+    text_group = displayio.Group(scale=1, x=2, y=8)
+    text = " 1       2       3"
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash[-4] = text_group
     '''
 
-    # Draw Effecency Label
+    # update subarray wattage
     text_group = displayio.Group(scale=1, x=2, y=20)
     text = "{:04.1f}    {:04.1f}    {:04.1f}".format(subArr1W, subArr2W, subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash[-3] = text_group
 
+    # update total array wattage
     text_group = displayio.Group(scale=2, x=2, y=40)
-    text = "T: {:04.1f}".format(subArr1W + subArr2W + subArr3W)
+    text = "  T: {:04.1f}".format(subArr1W + subArr2W + subArr3W)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
     text_group.append(text_area)  # Subgroup for text scaling
     splash[-2] = text_group
 
-    # Draw voltage/current Label
+    # update power tracker temperatures
     text_group = displayio.Group(scale=1, x=10, y=60)
     text = "T1: {:04.1f}  T2: {:04.1f}".format(mppttemp1,mppttemp2)
     text_area = label.Label(terminalio.FONT, text=text, color=0xFFFFFF)
@@ -172,24 +176,26 @@ def _shaune_theCAN_isfull():
         mcp._unread_message_queue.clear()
 
 
-initScreen()
+initScreen() #initialize the screens
 time.sleep(0.2)
 
 runTime = time.time()
 
 while True:
-        
-    with mcp.listen(timeout=0) as listener:
 
+    #get the CAN data
+    with mcp.listen(timeout=0) as listener:
+        
+        #send data to portenta through the uart line
         if(time.time()-sendtime>1):
             uart.write(struct.pack('<ffffff',subArr1W,subArr2W,subArr3W,totalWatt,mppttemp1,mppttemp2))
             sendtime=time.time()
 
-        totalWatt = subArr1W+subArr2W+subArr3W
+        totalWatt = subArr1W+subArr2W+subArr3W #calculate total wattage
 
         _shaune_theCAN_isfull()
         
-        drawScreen()
+        drawScreen() #update the screen with CAN data
         #Here starts where we do the CAN things
         message_count = listener.in_waiting()
         print("message count = {}".format(message_count),end = '\n')

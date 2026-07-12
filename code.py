@@ -111,7 +111,7 @@ totalWattage = HorizontalProgressBar(
     max_value = 1700
 )
 
-subarray1 = VerticalProgressBar(
+subarray0 = VerticalProgressBar(
     (0, 32),#position
     (16, 32),#size
     bar_color=0xFFFFFF,
@@ -124,7 +124,8 @@ subarray1 = VerticalProgressBar(
     max_value = 600
 )
 
-subarray2 = VerticalProgressBar(
+'''
+subarray1 = HorizontalProgressBar(
     (32, 32),#position
     (16, 32),#size
     bar_color=0xFFFFFF,
@@ -137,7 +138,7 @@ subarray2 = VerticalProgressBar(
     max_value = 600
 )
 
-subarray3 = VerticalProgressBar(
+subarray2 = HorizontalProgressBar(
     (64, 32),#position
     (16, 32),#size
     bar_color=0xFFFFFF,
@@ -149,8 +150,38 @@ subarray3 = VerticalProgressBar(
     min_value = 0,
     max_value = 600
 )
+'''
 
-subarray4 = VerticalProgressBar(
+subarray1 = HorizontalProgressBar(
+    (32, 26),#position
+    (48, 12),#size
+    bar_color=0xFFFFFF,
+    outline_color = 0xFFFFFF,
+    fill_color = 0x000000,
+    border_thickness = 2,
+    margin_size = 0,
+    value = 0,
+    min_value = 0,
+    max_value = 600
+)
+
+subarray2 = HorizontalProgressBar(
+    (32, 52),#position
+    (48, 12),#size
+    bar_color=0xFFFFFF,
+    outline_color = 0xFFFFFF,
+    fill_color = 0x000000,
+    border_thickness = 2,
+    margin_size = 0,
+    value = 0,
+    min_value = 0,
+    max_value = 600
+)
+
+
+
+
+subarray3 = VerticalProgressBar(
     (96, 32),#position
     (16, 32),#size
     bar_color=0xFFFFFF,
@@ -166,25 +197,25 @@ subarray4 = VerticalProgressBar(
 MainWattageLabel = displayio.Group(scale=1, x=8, y=11)
 wattage = label.Label(terminalio.FONT, text="0", color=0x000000)
 
-SubArray1Label = displayio.Group(scale=1, x=0, y=28)
+subarray0LabelGroup = displayio.Group(scale=1, x=0, y=28)
+subarray0Label = label.Label(terminalio.FONT, text="0", color=0xFFFFFF)
+
+subarray1LabelGroup = displayio.Group(scale=1, x=24, y=32)
 subarray1Label = label.Label(terminalio.FONT, text="1", color=0xFFFFFF)
 
-SubArray2Label = displayio.Group(scale=1, x=32, y=28)
+subarray2LabelGroup = displayio.Group(scale=1, x=24, y=56)
 subarray2Label = label.Label(terminalio.FONT, text="2", color=0xFFFFFF)
 
-SubArray3Label = displayio.Group(scale=1, x=64, y=28)
+subarray3LabelGroup = displayio.Group(scale=1, x=96, y=28)
 subarray3Label = label.Label(terminalio.FONT, text="3", color=0xFFFFFF)
-
-SubArray4Label = displayio.Group(scale=1, x=96, y=28)
-subarray4Label = label.Label(terminalio.FONT, text="4", color=0xFFFFFF)
 
 
 MainWattageLabel.append(wattage)
 
-SubArray1Label.append(subarray1Label)  # Subgroup for text scaling
-SubArray2Label.append(subarray2Label)
-SubArray3Label.append(subarray3Label)
-SubArray4Label.append(subarray4Label)
+subarray0LabelGroup.append(subarray0Label)  # Subgroup for text scaling
+subarray1LabelGroup.append(subarray1Label)
+subarray2LabelGroup.append(subarray2Label)
+subarray3LabelGroup.append(subarray3Label)
 
 def frontcover():
     #Draw Frontfilm over our text
@@ -269,18 +300,18 @@ totalWatt = send_time = 0
 # two different functions for initialization of the screen and updating 
 def initScreen():
     
+    splash.append(subarray0)
     splash.append(subarray1)
     splash.append(subarray2)
     splash.append(subarray3)
-    splash.append(subarray4)
     splash.append(totalWattage)
     
     splash.append(MainWattageLabel)
     
-    splash.append(SubArray1Label)
-    splash.append(SubArray2Label)
-    splash.append(SubArray3Label)
-    splash.append(SubArray4Label)
+    splash.append(subarray0LabelGroup)
+    splash.append(subarray1LabelGroup)
+    splash.append(subarray2LabelGroup)
+    splash.append(subarray3LabelGroup)
     
     frontcover()
     
@@ -318,26 +349,35 @@ def initScreen():
 
 def drawScreen():
     
-    #test values
-    subarray1Value = tracker1.w
-    subarray2Value = tracker2.w
-    subarray3Value = tracker3.w
-    subarray4Value = tracker4.w
+    '''
+    subarray0Value = tracker1.w
+    subarray1Value = tracker2.w
+    subarray2Value = tracker3.w
+    subarray3Value = tracker4.w
     
     wattageValue = totalWatt
+    '''
+    subarray0Value = 150	
+    subarray1Value = 0
+    subarray2Value = 450
+    subarray3Value = 600
+    
+    wattageValue = 1350
     
     
+    
+    
+    subarray0RenderedValue = clamp(subarray0Value, 0, 600)
     subarray1RenderedValue = clamp(subarray1Value, 0, 600)
     subarray2RenderedValue = clamp(subarray2Value, 0, 600)
     subarray3RenderedValue = clamp(subarray3Value, 0, 600)
-    subarray4RenderedValue = clamp(subarray4Value, 0, 600)
     
     TotalWattageRenderedValue = clamp(wattageValue, 0, 1700)
     
+    subarray0.value = subarray0RenderedValue
     subarray1.value = subarray1RenderedValue
     subarray2.value = subarray2RenderedValue
     subarray3.value = subarray3RenderedValue
-    subarray4.value = subarray4RenderedValue
     
     totalWattage.value = TotalWattageRenderedValue
     wattage.text=str(TotalWattageRenderedValue) + " W"
@@ -447,4 +487,5 @@ while True:
             elif next_message.id == 0x632:
                 tracker3.process602(next_message.data)
             next_message = listener.receive()            
+
 

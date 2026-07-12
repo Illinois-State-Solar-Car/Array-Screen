@@ -349,23 +349,21 @@ def initScreen():
 
 def drawScreen():
     
-    '''
     subarray0Value = tracker1.w
     subarray1Value = tracker2.w
     subarray2Value = tracker3.w
     subarray3Value = tracker4.w
     
     wattageValue = totalWatt
+    
     '''
-    subarray0Value = 150	
+    subarray0Value = 150
     subarray1Value = 0
     subarray2Value = 450
     subarray3Value = 600
     
     wattageValue = 1350
-    
-    
-    
+    '''
     
     subarray0RenderedValue = clamp(subarray0Value, 0, 600)
     subarray1RenderedValue = clamp(subarray1Value, 0, 600)

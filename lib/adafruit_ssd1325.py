@@ -25,13 +25,22 @@ Implementation Notes
 
 """
 
-import displayio
+from busdisplay import BusDisplay
 
-__version__ = "1.4.10"
+try:
+    from typing import Union
+
+    from fourwire import FourWire
+    from i2cdisplaybus import I2CDisplayBus
+except ImportError:
+    pass
+
+
+__version__ = "2.0.3"
 __repo__ = "https://github.com/adafruit/Adafruit_CircuitPython_SSD1325.git"
 
 _INIT_SEQUENCE = (
-    b"\xAE\x00"  # DISPLAY_OFF
+    b"\xae\x00"  # DISPLAY_OFF
     b"\xb3\x01\xa1"  # Set clock
     b"\xa8\x01\x3f"  # Mux ratio is 1/64
     b"\xa1\x01\x00"  # Display start line is 0
@@ -54,7 +63,7 @@ _INIT_SEQUENCE = (
 
 
 # pylint: disable=too-few-public-methods
-class SSD1325(displayio.Display):
+class SSD1325(BusDisplay):
     """
     SSD1325 driver
 
@@ -64,7 +73,7 @@ class SSD1325(displayio.Display):
         (0, 90, 180, 270)
     """
 
-    def __init__(self, bus: displayio.FourWire, **kwargs) -> None:
+    def __init__(self, bus: Union[FourWire, I2CDisplayBus], **kwargs) -> None:
         # Patch the init sequence for 32 pixel high displays.
         init_sequence = bytearray(_INIT_SEQUENCE)
         height = kwargs["height"]
